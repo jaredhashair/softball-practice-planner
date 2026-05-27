@@ -582,7 +582,7 @@ Rules:
       document.getElementById('loading-screen').style.display = 'none';
       document.getElementById('form-view').style.display = '';
       genBtn.disabled = false;
-      errorBox.textContent = 'Something went wrong: ' + e.message;
+      errorBox.textContent = 'Something went wrong: ' + JSON.stringify(e);
       errorBox.style.display = 'block';
     }
   });
