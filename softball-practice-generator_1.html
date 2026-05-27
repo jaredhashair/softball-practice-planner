@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice Planner — 10U Softball</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #1DC8C8;
+    --teal-dark: #0F9999;
+    --teal-light: #E0F7F7;
+    --teal-mid: #9FE0E0;
+    --charcoal: #141420;
+    --charcoal-mid: #2A2A3A;
+    --offwhite: #F7F7F5;
+    --muted: #6B6B80;
+    --border: #E2E2DE;
+    --white: #ffffff;
+    --danger: #E24B4A;
+    --danger-light: #FCEBEB;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--offwhite);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--charcoal);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--teal);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark svg { width: 20px; height: 20px; }
+
+  .header-text h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+
+  .header-text p {
+    font-size: 12px;
+    color: var(--teal-mid);
+    margin-top: 1px;
+  }
+
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+  }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  select, textarea {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--charcoal);
+    background: var(--offwhite);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6B80' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  select:focus, textarea:focus { border-color: var(--teal); }
+
+  textarea { resize: none; line-height: 1.5; }
+
+  .focus-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .focus-btn {
+    padding: 11px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--offwhite);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .focus-btn.on {
+    background: var(--teal-light);
+    border-color: var(--teal);
+    color: var(--teal-dark);
+  }
+
+  .generate-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--teal);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: -0.01em;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 0.25rem;
+  }
+
+  .generate-btn:hover { background: var(--teal-dark); }
+  .generate-btn:active { transform: scale(0.98); }
+  .generate-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .error-box {
+    background: var(--danger-light);
+    border: 1px solid #F09595;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--danger);
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* Output styles */
+  #output-view { display: none; }
+
+  .plan-header {
+    background: var(--charcoal);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .plan-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+  }
+
+  .plan-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .pill {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    background: var(--charcoal-mid);
+    color: var(--teal-mid);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .plan-meta-row {
+    font-size: 13px;
+    color: var(--teal-mid);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .segment-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .segment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--offwhite);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .segment-name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--charcoal);
+    text-transform: uppercase;
+  }
+
+  .segment-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--teal-dark);
+    background: var(--teal-light);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .drill {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .drill:last-child { border-bottom: none; }
+
+  .drill-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    gap: 8px;
+  }
+
+  .drill-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--charcoal);
+    letter-spacing: -0.02em;
+    flex: 1;
+  }
+
+  .drill-mins {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .drill-desc {
+    font-size: 14px;
+    color: #444455;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .tip-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    background: var(--teal-light);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  .tip-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .tip-text {
+    font-size: 13px;
+    color: var(--teal-dark);
+    line-height: 1.5;
+  }
+
+  .view-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+  }
+
+  .vtbtn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .vtbtn.active {
+    background: var(--charcoal);
+    color: var(--white);
+  }
+
+  .reset-btn {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .reset-btn:hover { border-color: var(--charcoal); color: var(--charcoal); }
+
+  .loading-screen {
+    display: none;
+    text-align: center;
+    padding: 4rem 1rem;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--teal-light);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  /* Print view */
+  @media print {
+    header { background: #141420 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .view-toggle, .reset-btn, .generate-btn { display: none !important; }
+    .segment-card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M9 12c0-3 1.5-5 3-5s3 2 3 5-1.5 5-3 5-3-2-3-5z"/>
+      <path d="M3 12h18"/>
+    </svg>
+  </div>
+  <div class="header-text">
+    <h1>Practice Planner</h1>
+    <p>10U Girls Softball</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- Form -->
+  <div id="form-view">
+
+    <div class="card">
+      <div class="card-label">Practice duration</div>
+      <select id="duration">
+        <option value="90">90 minutes</option>
+        <option value="120" selected>2 hours (120 min)</option>
+        <option value="150">2.5 hours (150 min)</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Focus areas — tap to select</div>
+      <div class="focus-grid" id="focus-grid">
+        <button class="focus-btn on" data-val="Hitting / Offense">⚾ Hitting / Offense</button>
+        <button class="focus-btn on" data-val="Fielding / Defense">🥎 Fielding / Defense</button>
+        <button class="focus-btn on" data-val="Baserunning">🏃 Baserunning</button>
+        <button class="focus-btn on" data-val="Game Situations">🎮 Game Situations</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Weaknesses to address (optional)</div>
+      <textarea id="weaknesses" rows="3" placeholder="e.g. girls struggle with pop flies, tend to step out on inside pitches, need work on rundowns..."></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Notes for today (optional)</div>
+      <textarea id="notes" rows="2" placeholder="e.g. tournament this weekend, missing 3 players, keep energy high..."></textarea>
+    </div>
+
+    <button class="generate-btn" id="gen-btn">Generate Practice Plan →</button>
+    <div class="error-box" id="error-box">Please select at least one focus area.</div>
+
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="spinner"></div>
+    <p class="loading-text">Building your practice plan...</p>
+  </div>
+
+  <!-- Output -->
+  <div id="output-view">
+    <div class="view-toggle">
+      <button class="vtbtn active" id="card-btn">Card View</button>
+      <button class="vtbtn" id="print-btn">Print View</button>
+    </div>
+    <div id="plan-header"></div>
+    <div id="plan-segments"></div>
+    <button class="reset-btn" id="reset-btn">← Generate another plan</button>
+  </div>
+
+</main>
+
+<script>
+  // NOTE: Replace this with your actual Anthropic API key to run locally.
+  // For production/GitHub Pages, use a proxy or backend to protect the key.
+  const API_KEY = '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';
+
+  const focusGrid = document.getElementById('focus-grid');
+  const genBtn = document.getElementById('gen-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const cardBtn = document.getElementById('card-btn');
+  const printBtn = document.getElementById('print-btn');
+  const errorBox = document.getElementById('error-box');
+
+  let lastPlan = null;
+
+  // Focus button toggles
+  focusGrid.addEventListener('click', function(e) {
+    const btn = e.target.closest('.focus-btn');
+    if (!btn) return;
+    btn.classList.toggle('on');
+    errorBox.style.display = 'none';
+  });
+
+  // View toggles
+  cardBtn.addEventListener('click', function() { setView('card'); });
+  printBtn.addEventListener('click', function() { setView('print'); });
+
+  function setView(v) {
+    cardBtn.classList.toggle('active', v === 'card');
+    printBtn.classList.toggle('active', v === 'print');
+    if (v === 'print') window.print();
+  }
+
+  // Reset
+  resetBtn.addEventListener('click', function() {
+    document.getElementById('output-view').style.display = 'none';
+    document.getElementById('form-view').style.display = '';
+    genBtn.disabled = false;
+    errorBox.style.display = 'none';
+  });
+
+  // Generate
+  genBtn.addEventListener('click', async function() {
+    const selected = Array.from(document.querySelectorAll('.focus-btn.on')).map(b => b.dataset.val);
+    if (!selected.length) {
+      errorBox.style.display = 'block';
+      return;
+    }
+
+    const duration = document.getElementById('duration').value;
+    const weaknesses = document.getElementById('weaknesses').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+
+    genBtn.disabled = true;
+    errorBox.style.display = 'none';
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('loading-screen').style.display = 'block';
+    document.getElementById('output-view').style.display = 'none';
+
+    const prompt = `You are an expert 10U girls softball coach assistant. Generate a structured practice plan.
+
+Practice details:
+- Duration: ${duration} minutes
+- Focus areas: ${selected.join(', ')}
+${weaknesses ? `- Weaknesses to emphasize: ${weaknesses}` : ''}
+${notes ? `- Coach notes: ${notes}` : ''}
+
+Return ONLY valid JSON, no markdown, no backticks, no preamble. Use this exact structure:
+{
+  "title": "short creative practice name",
+  "duration": ${duration},
+  "focus": ["focus areas"],
+  "segments": [
+    {
+      "name": "segment name",
+      "minutes": number,
+      "drills": [
+        {
+          "name": "drill name",
+          "minutes": number,
+          "description": "2-3 sentences on drill setup and execution",
+          "tips": "1-2 coaching tips specific to 10U girls"
+        }
+      ]
+    }
+  ]
+}
+
+Rules:
+- Always start with a warm-up (5-10 min) and end with cool-down/huddle (5 min)
+- Total segment minutes must equal exactly ${duration}
+- Drill minutes within each segment must sum to that segment's minutes
+- 2-4 drills per segment
+- Age-appropriate and engaging for 10-year-old girls
+- If weaknesses mentioned, include drills targeting each one
+- Use real softball drill names coaches recognize`;
+
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-allow-browser': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 2000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error.message);
+      const text = data.content.map(i => i.text || '').join('');
+      const clean = text.replace(/```json|```/g, '').trim();
+      const plan = JSON.parse(clean);
+      lastPlan = plan;
+      renderPlan(plan);
+
+      document.getElementById('loading-screen').style.display = 'none';
+      document.getElementById('output-view').style.display = 'block';
+
+    } catch(e) {
+      document.getElementById('loading-screen').style.display = 'none';
+      document.getElementById('form-view').style.display = '';
+      genBtn.disabled = false;
+      errorBox.textContent = 'Something went wrong: ' + e.message;
+      errorBox.style.display = 'block';
+    }
+  });
+
+  function renderPlan(plan) {
+    let elapsed = 0;
+
+    document.getElementById('plan-header').innerHTML = `
+      <div class="plan-header">
+        <div class="plan-name">${plan.title}</div>
+        <div class="plan-meta-row">${plan.duration} min</div>
+        <div class="plan-pills">
+          ${plan.focus.map(f => `<span class="pill">${f}</span>`).join('')}
+        </div>
+      </div>`;
+
+    let segsHtml = '';
+    plan.segments.forEach(seg => {
+      const start = fmt(elapsed);
+      elapsed += seg.minutes;
+      const end = fmt(elapsed);
+
+      let drillsHtml = seg.drills.map(drill => `
+        <div class="drill">
+          <div class="drill-header">
+            <span class="drill-name">${drill.name}</span>
+            <span class="drill-mins">${drill.minutes} min</span>
+          </div>
+          <div class="drill-desc">${drill.description}</div>
+          <div class="tip-row">
+            <span class="tip-icon">💡</span>
+            <span class="tip-text">${drill.tips}</span>
+          </div>
+        </div>`).join('');
+
+      segsHtml += `
+        <div class="segment-card">
+          <div class="segment-header">
+            <span class="segment-name">${seg.name}</span>
+            <span class="segment-time">${start} – ${end}</span>
+          </div>
+          ${drillsHtml}
+        </div>`;
+    });
+
+    document.getElementById('plan-segments').innerHTML = segsHtml;
+  }
+
+  function fmt(mins) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return h > 0 ? `${h}:${m.toString().padStart(2,'0')}` : `0:${m.toString().padStart(2,'0')}`;
+  }
+</script>
+</body>
+</html>
